@@ -1,37 +1,46 @@
 {
-  "expo": {
-    "name": "GymBro",
-    "slug": "gymbro",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "scheme": "gymbro",
-    "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#000000"
-    },
-    "ios": {
-      "supportsTablet": false,
-      "bundleIdentifier": "com.gymbro.app",
-      "infoPlist": {
-        "NSMicrophoneUsageDescription": "GymBro usa il microfono per i comandi vocali.",
-        "NSSpeechRecognitionUsageDescription": "GymBro usa il riconoscimento vocale per controllare l'allenamento."
-      }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#000000"
-      },
-      "package": "com.gymbro.app"
-    },
-    "plugins": [
-      "expo-router",
-      "expo-sqlite",
-      "expo-font"
-    ]
-  }
+    "expo": {
+        "name": "GymBro",
+        "slug": "gymbro",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/icon.png",
+        "scheme": "gymbro",
+        "userInterfaceStyle": "dark",
+        "newArchEnabled": true,
+        "splash": {
+            "image": "./assets/splash-icon.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#000000"
+        },
+        "ios": {
+            "supportsTablet": false,
+            "bundleIdentifier": "com.gymbro.app",
+            "infoPlist": {
+                "NSMicrophoneUsageDescription": "GymBro usa il microfono per i comandi vocali.",
+                "NSSpeechRecognitionUsageDescription": "GymBro usa il riconoscimento vocale per controllare l'allenamento."
+            }
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "backgroundColor": "#000000"
+            },
+            "package": "com.gymbro.app"
+        },
+        "plugins": [
+            "expo-router",
+            "expo-sqlite",
+            "expo-font",
+            "expo-dev-client"
+        ],
+        "extra": {
+            "router": {
+                "origin": false
+            },
+            "eas": {
+                "projectId": "279fd953-8f3e-4d09-b4c4-583f1eef88e7"
+            }
+        }
+    }
 }
