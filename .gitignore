@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Expo
+# (cartelle generate che ora non sono più usate)
+
+# Logs
+*.log
+npm-debug.*
+
+# Environment
+.env
+
+# OS
+.DS_Store
+*.suo
+*.sw?
+
+# Signing
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision

@@ -1,0 +1,23 @@
+# Task ID: 11
+# Title: Dark Mode Design System & UI Polish
+# Status: pending
+# Dependencies: 10
+# Priority: high
+# Description: Implement the app-wide design system with dark mode default, high contrast, large fonts, and consistent styling.
+# Details:
+1. Create a Design System:
+   - Colors: Define color assets - background (#000000), surface (#1a1a1a), primary (#1a3a5c), accent, text, textSecondary
+   - Typography: Define text styles - title (24pt), body (18pt), timer (72pt), timerStand (140pt), caption
+   - Spacing: consistent padding/margin scale
+2. Create reusable components:
+   - GymBroButton: large CTA style (70pt height, full width, rounded corners)
+   - GymBroCard: dark surface card with rounded corners
+   - TimerDisplay: large monospaced number display
+   - StepperControl: +/- with large touch targets (44x44pt minimum)
+3. Force dark mode: .preferredColorScheme(.dark) on root view.
+4. Apply design system to all existing views.
+5. Ensure all interactive elements meet 44x44pt minimum touch target.
+6. Support Dynamic Type for accessibility.
+
+# Test Strategy:
+Visual review on multiple device sizes. Verify all touch targets meet 44x44pt minimum. Test Dynamic Type scaling. Verify dark mode is enforced.

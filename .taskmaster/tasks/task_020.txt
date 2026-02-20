@@ -1,0 +1,29 @@
+# Task ID: 20
+# Title: Accessibility & One-Handed UX Polish
+# Status: pending
+# Dependencies: 11, 12
+# Priority: medium
+# Description: Final accessibility pass ensuring VoiceOver support, Dynamic Type, minimum touch targets, and one-handed usability throughout the app.
+# Details:
+1. VoiceOver audit:
+   - Add accessibilityLabel to all interactive elements
+   - Add accessibilityHint for non-obvious actions
+   - Ensure logical reading order
+   - Timer announces remaining time periodically
+2. Dynamic Type:
+   - All text uses relative sizing
+   - Test with largest accessibility size
+   - Ensure layouts don't break
+3. Touch targets:
+   - Audit all buttons: minimum 44x44pt
+   - Increase spacing between adjacent targets
+   - Test with 'sweaty fingers' scenario (larger hit areas)
+4. One-handed use:
+   - All primary CTAs in bottom third of screen
+   - No critical actions requiring top-of-screen reach
+   - Swipe gestures as alternatives to buttons
+5. Color contrast: verify WCAG AA compliance.
+6. Reduce motion support: honor system accessibility settings.
+
+# Test Strategy:
+Full VoiceOver walkthrough of every screen. Test with largest Dynamic Type. Measure all touch targets. Test one-handed use on largest iPhone. Run Accessibility Inspector audit.

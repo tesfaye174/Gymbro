@@ -1,0 +1,283 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Xcode Project Setup & Core Data Schema",
+        "description": "Create the Xcode project with SwiftUI lifecycle, configure Core Data stack, and define the entity schema for WorkoutTemplate, Exercise, WorkoutSession, and SetRecord.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [],
+        "details": "1. Create a new Xcode project named 'GymBro' with SwiftUI App lifecycle.\n2. Enable Core Data in the project.\n3. Define Core Data entities:\n   - WorkoutTemplate: id (UUID), name (String), createdAt (Date), exercises (relationship to Exercise, ordered, cascade delete)\n   - Exercise: id (UUID), name (String), sets (Int16), reps (Int16), restSeconds (Int16), order (Int16), template (relationship to WorkoutTemplate)\n   - WorkoutSession: id (UUID), date (Date), duration (Int32), completed (Bool), templateName (String), template (optional relationship to WorkoutTemplate)\n   - SetRecord: id (UUID), weight (Double), repsDone (Int16), fatigue (Int16), setIndex (Int16), exerciseName (String), session (relationship to WorkoutSession)\n4. Create PersistenceController with shared instance and preview support.\n5. Set up MVVM folder structure: Models/, ViewModels/, Views/, Services/, Utilities/.\n6. Configure Info.plist for HealthKit and microphone usage descriptions.",
+        "testStrategy": "Verify project builds and runs on simulator. Verify Core Data stack initializes without errors. Create and fetch a test entity to validate schema.",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Core Data Models & Repository Layer",
+        "description": "Implement Swift model structs, Core Data CRUD operations, and a repository pattern for clean data access across the app.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "details": "1. Create Swift structs mirroring Core Data entities for use in ViewModels (WorkoutTemplateModel, ExerciseModel, WorkoutSessionModel, SetRecordModel).\n2. Implement WorkoutRepository with methods:\n   - createTemplate(name:exercises:) -> WorkoutTemplateModel\n   - fetchAllTemplates() -> [WorkoutTemplateModel]\n   - updateTemplate(id:name:exercises:)\n   - deleteTemplate(id:)\n3. Implement SessionRepository with methods:\n   - createSession(templateId:) -> WorkoutSessionModel\n   - completeSession(id:duration:)\n   - fetchAllSessions() -> [WorkoutSessionModel]\n   - fetchSessions(from:to:) -> [WorkoutSessionModel]\n   - addSetRecord(sessionId:exerciseName:weight:reps:fatigue:setIndex:)\n4. Add proper error handling with custom WorkoutError enum.\n5. Use @FetchRequest wrappers where appropriate in views.",
+        "testStrategy": "Write unit tests for CRUD operations. Test creating a template with exercises, fetching it back, updating, and deleting. Verify cascade delete removes exercises when template is deleted.",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Timer Engine with State Machine",
+        "description": "Build a precise timer engine using DispatchSourceTimer with a state machine managing workout flow: IDLE → EXERCISE_RUNNING → REST_RUNNING → NEXT_SET → NEXT_EXERCISE → COMPLETED.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "details": "1. Create TimerEngine class as ObservableObject.\n2. Define WorkoutState enum: idle, exerciseRunning, restRunning, nextSet, nextExercise, completed.\n3. Implement DispatchSourceTimer for precise 1-second ticks:\n   - timer = DispatchSource.makeTimerSource()\n   - schedule(deadline: .now(), repeating: 1)\n   - Update on main queue\n4. Published properties: currentState, remainingSeconds, totalElapsedSeconds, currentExerciseIndex, currentSetIndex.\n5. Methods: start(), pause(), resume(), skip(), goBack(), reset().\n6. State transition logic:\n   - IDLE → start() → EXERCISE_RUNNING\n   - EXERCISE_RUNNING → timer expires → REST_RUNNING (haptic brief)\n   - REST_RUNNING → timer expires → NEXT_SET or NEXT_EXERCISE (haptic double)\n   - Last set of last exercise → COMPLETED\n7. Haptic feedback via UIImpactFeedbackGenerator:\n   - .light for exercise end\n   - .medium + .medium (double tap) for rest end\n8. Keep screen awake: UIApplication.shared.isIdleTimerDisabled = true during workout.\n9. Track total elapsed time independently of set/rest timers.",
+        "testStrategy": "Unit test state transitions. Verify timer counts down correctly. Test pause/resume doesn't lose time. Test skip advances to correct next state. Verify haptic triggers at correct state transitions.",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Workout Template Creation & Editing UI",
+        "description": "Build the screen for creating and editing workout templates with exercise list, drag-to-reorder, and quick templates.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "details": "1. Create TemplateListView showing all saved templates.\n2. Create TemplateEditorView with:\n   - TextField for template name\n   - Picker for split type (Push, Pull, Legs, Upper, Lower, Full Body, Custom)\n   - List of exercises with drag-to-reorder (.onMove modifier)\n   - Each exercise row: name, sets x reps, rest time\n   - Swipe to delete exercise\n   - '+ Add Exercise' button\n3. Create ExerciseEditorSheet:\n   - Exercise name (with search/autocomplete from common exercises)\n   - Stepper for sets (1-10)\n   - Stepper for reps (1-50)\n   - Stepper for rest seconds (15-300, step 15)\n4. Create TemplateEditorViewModel handling CRUD via WorkoutRepository.\n5. Support template duplication (swipe action on template list).\n6. Provide 3-4 quick templates (PPL, Upper/Lower, Full Body) that can be loaded.\n7. Follow dark mode design: black background, high contrast text, CTAs at bottom.",
+        "testStrategy": "Test creating a template with multiple exercises. Verify reordering persists. Test editing an existing template. Test duplicate creates independent copy. Verify quick templates load correctly.",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Today's Workout Screen (1-Tap Start)",
+        "description": "Build the home/landing screen showing today's scheduled workout with a prominent single-tap start CTA.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          2,
+          4
+        ],
+        "details": "1. Create TodayView as the app's main/landing tab.\n2. Layout per wireframe:\n   - Header: 'Oggi - [Template Name]' (24pt font)\n   - Estimated time: calculated from total sets * (exercise_time + rest_time) (18pt font)\n   - Exercise summary list: exercise name + sets x reps\n   - Large CTA button at bottom: 'INIZIA ALLENAMENTO' (70pt height, dark blue)\n3. Create TodayViewModel:\n   - Determine today's template (simple rotation or user selection)\n   - Calculate estimated duration\n   - Handle start action → navigate to ActiveWorkoutView\n4. Haptic feedback on start tap (.light impact)\n5. If no template assigned, show prompt to create or select one.\n6. Dark mode: black background (#000000), CTA dark blue (#1a3a5c).\n7. Support navigation to template list for changing today's workout.",
+        "testStrategy": "Verify correct template shows for today. Test estimated time calculation accuracy. Verify 1-tap start navigates to active workout. Test empty state when no templates exist.",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Active Workout Session Screen",
+        "description": "Build the main workout execution screen showing current exercise, timer, weight controls, and set progress with zero-scroll layout.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          3,
+          5
+        ],
+        "details": "1. Create ActiveWorkoutView with zero-scroll layout:\n   - Exercise name (top, large font)\n   - Set progress: 'Serie [current]/[total]' \n   - Timer display: large countdown (72pt font, monospaced)\n   - Current weight display with +/- buttons (step: 2.5kg)\n   - Reps done counter with +/- buttons\n   - Auto-advance indicator\n2. Create ActiveWorkoutViewModel:\n   - Initialize with template exercises\n   - Connect to TimerEngine\n   - Track per-set: weight, reps done\n   - Save SetRecord on set completion\n   - Create WorkoutSession on start, complete on finish\n3. Bottom controls: Pause, Skip, End Workout.\n4. Auto-advance: when rest timer ends, automatically move to next set/exercise.\n5. Display state-appropriate content:\n   - EXERCISE_RUNNING: show exercise timer + weight/reps input\n   - REST_RUNNING: show rest countdown + 'Prossimo: [next exercise/set]'\n   - COMPLETED: show summary and save\n6. Disable idle timer during workout.\n7. Weight defaults to last used weight for same exercise.",
+        "testStrategy": "Test full workout flow from start to completion. Verify set records are saved correctly. Test weight/reps adjustment. Verify auto-advance works between sets and exercises. Test pause and resume.",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Set Logging & Weight/Reps Input",
+        "description": "Implement reliable per-set logging of weight, reps done, and optional fatigue rating with persistent storage.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          2,
+          6
+        ],
+        "details": "1. Enhance SetRecord saving in ActiveWorkoutViewModel:\n   - On each set completion, save: weight, repsDone, fatigue (optional 1-10), setIndex, exerciseName\n   - Associate with current WorkoutSession\n2. Weight input component:\n   - Large +/- buttons (44x44pt minimum touch target)\n   - Step: 2.5kg (configurable)\n   - Long press for fast increment\n   - Display in kg (future: lb toggle)\n3. Reps input component:\n   - +/- buttons\n   - Default to template reps value\n   - Highlight if different from target\n4. Optional fatigue slider (1-10) shown after completing each exercise (not each set).\n5. Pre-populate weight from last session's same exercise.\n6. Save immediately on completion (no batch save at end).\n7. Handle edge cases: 0 weight (bodyweight), partial sets.",
+        "testStrategy": "Verify set records persist to Core Data. Test weight pre-population from previous sessions. Test edge cases: bodyweight exercises, partial sets. Verify data integrity after app restart.",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Auto-Advance Between Exercises & Sets",
+        "description": "Implement automatic progression through sets and exercises with smooth transitions and clear visual/haptic feedback.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          3,
+          6
+        ],
+        "details": "1. In TimerEngine, implement auto-advance logic:\n   - After EXERCISE_RUNNING completes → auto-transition to REST_RUNNING\n   - After REST_RUNNING completes → auto-transition to NEXT_SET or NEXT_EXERCISE\n   - Brief 3-second countdown overlay before advancing\n2. Visual transitions:\n   - Animated state change between exercise and rest\n   - Preview of next exercise during rest period\n   - Set counter updates smoothly\n3. Haptic pattern:\n   - Single vibration → exercise time done, rest starts\n   - Double vibration → rest done, next set/exercise starts\n4. Override: user can tap to advance early or delay.\n5. Handle last set of last exercise → transition to COMPLETED state.\n6. Sound option (optional, off by default): subtle chime on transitions.\n7. Ensure smooth animation between states (withAnimation).",
+        "testStrategy": "Test complete auto-advance flow through multi-exercise workout. Verify correct haptic patterns. Test early advance override. Test completing final exercise transitions to completed state.",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Workout Session History",
+        "description": "Build a history view showing all past workout sessions with details, duration, and completion status.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          2,
+          7
+        ],
+        "details": "1. Create HistoryView as a tab:\n   - List of past sessions sorted by date (newest first)\n   - Each row: template name, date, duration, completion badge\n   - Section headers by month\n2. Create HistoryDetailView:\n   - Session summary: template name, date, total duration\n   - Exercise breakdown: each exercise with all set records\n   - Display per-set: weight x reps\n   - Completion percentage\n3. Create HistoryViewModel:\n   - Fetch sessions from SessionRepository\n   - Support date range filtering\n   - Calculate statistics\n4. Swipe to delete sessions.\n5. Empty state for no history yet.\n6. Display streak (consecutive days with workouts).",
+        "testStrategy": "Test history loads saved sessions correctly. Verify detail view shows all set records. Test date filtering. Test deletion removes session and associated records.",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Tab Navigation & App Structure",
+        "description": "Set up the main tab bar navigation with Today, Templates, History tabs and proper navigation flow.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          5,
+          4,
+          9
+        ],
+        "details": "1. Create MainTabView with TabView:\n   - Today (house icon) → TodayView\n   - Templates (list icon) → TemplateListView\n   - History (clock icon) → HistoryView\n2. Configure NavigationStack for each tab.\n3. Handle deep navigation: template editing, session detail, active workout.\n4. Active workout should be presented as full-screen cover (not in tab).\n5. Tab bar hidden during active workout.\n6. Dark mode styling for tab bar.\n7. Set Today as default/initial tab.",
+        "testStrategy": "Verify all tabs navigate correctly. Test that active workout covers full screen. Verify tab bar hides during workout. Test back navigation in each tab.",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Dark Mode Design System & UI Polish",
+        "description": "Implement the app-wide design system with dark mode default, high contrast, large fonts, and consistent styling.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          10
+        ],
+        "details": "1. Create a Design System:\n   - Colors: Define color assets - background (#000000), surface (#1a1a1a), primary (#1a3a5c), accent, text, textSecondary\n   - Typography: Define text styles - title (24pt), body (18pt), timer (72pt), timerStand (140pt), caption\n   - Spacing: consistent padding/margin scale\n2. Create reusable components:\n   - GymBroButton: large CTA style (70pt height, full width, rounded corners)\n   - GymBroCard: dark surface card with rounded corners\n   - TimerDisplay: large monospaced number display\n   - StepperControl: +/- with large touch targets (44x44pt minimum)\n3. Force dark mode: .preferredColorScheme(.dark) on root view.\n4. Apply design system to all existing views.\n5. Ensure all interactive elements meet 44x44pt minimum touch target.\n6. Support Dynamic Type for accessibility.",
+        "testStrategy": "Visual review on multiple device sizes. Verify all touch targets meet 44x44pt minimum. Test Dynamic Type scaling. Verify dark mode is enforced.",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Stand Mode (Hands-Free Display)",
+        "description": "Implement Stand mode with extra-large centered text, minimal UI, and large bottom buttons optimized for viewing from a distance.",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [
+          6,
+          11
+        ],
+        "details": "1. Create StandModeView as an alternative layout for ActiveWorkoutView:\n   - Timer: 140pt font, centered\n   - Exercise name: large, centered below timer\n   - Set progress: 'Serie [x]/[y]'\n   - Weight display: large\n   - Bottom buttons: PAUSA and SALTA (extra large, full width)\n2. Toggle button to switch between normal and stand mode in ActiveWorkoutView.\n3. Stand mode optimizations:\n   - Minimal animations\n   - High contrast (pure white on pure black)\n   - No small text elements\n   - Reduced refresh rate considerations\n4. Auto-detect stand mode via device orientation or user preference.\n5. Keep screen always on during stand mode.\n6. Pulsanti grandi: minimum 60pt height in stand mode.\n7. Transition animation between normal and stand mode.",
+        "testStrategy": "Test readability from 1-2 meter distance. Verify all controls are usable with sweaty hands. Test mode switching during active workout. Verify timer accuracy in stand mode.",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Progress Charts & Personal Records",
+        "description": "Build progress visualization with weight-over-time charts, personal records display, and workout streak tracking.",
+        "status": "done",
+        "priority": "medium",
+        "dependencies": [
+          9
+        ],
+        "details": "1. Create ProgressView as a tab or section:\n   - Exercise weight chart (line chart over time, using Swift Charts)\n   - Exercise selector to pick which exercise to view\n   - Personal records section: max weight per exercise\n   - Workout streak: consecutive days count with calendar heatmap\n2. Create ProgressViewModel:\n   - Query set records grouped by exercise\n   - Calculate PR (personal record) per exercise\n   - Calculate streak from session dates\n   - Support time range: 1 week, 1 month, 3 months, all time\n3. Charts implementation:\n   - Use Swift Charts framework (iOS 16+)\n   - Line chart: X = date, Y = max weight for that session\n   - Bar chart option for volume (total sets * reps * weight)\n4. PR display: highlight when new PR is achieved during workout.\n5. Streak display: number + flame icon, reset if day missed.\n6. Empty state for exercises without enough data.",
+        "testStrategy": "Test charts render with varying data amounts. Verify PR detection is accurate. Test streak calculation with consecutive and non-consecutive dates. Test time range filtering.",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "HealthKit Integration",
+        "description": "Integrate with HealthKit to write workout sessions as strength training workouts and read previous workout data.",
+        "status": "done",
+        "priority": "medium",
+        "dependencies": [
+          7,
+          9
+        ],
+        "details": "1. Create HealthKitService:\n   - Request authorization for HKWorkoutType and HKQuantityType (activeEnergyBurned)\n   - Write method: saveWorkout(session:setRecords:)\n   - Read method: fetchRecentWorkouts(limit:) for showing external workouts\n2. Writing HKWorkout:\n   - activityType: .traditionalStrengthTraining\n   - start/end dates from session\n   - totalEnergyBurned: estimate from duration and intensity\n   - metadata: include exercise names, total sets, total weight lifted\n3. Prompt for HealthKit permission on first workout completion (opt-in).\n4. Settings toggle to enable/disable HealthKit sync.\n5. Show HealthKit status in settings (connected/not connected).\n6. Handle authorization denied gracefully.\n7. Add HealthKit capability in Xcode project and Info.plist usage descriptions.",
+        "testStrategy": "Test on real device (HealthKit not available in simulator). Verify workout appears in Apple Health app. Test authorization flow (grant and deny). Test with HealthKit disabled.",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Voice Commands (Speech Framework)",
+        "description": "Implement local voice control using Speech Framework for hands-free workout control with commands: pausa, riprendi, avanti, indietro, ripeti.",
+        "status": "done",
+        "priority": "medium",
+        "dependencies": [
+          6,
+          12
+        ],
+        "details": "1. Create VoiceCommandService using Speech Framework:\n   - SFSpeechRecognizer with locale: it-IT (Italian)\n   - Continuous recognition during active workout\n   - Local processing (on-device, no network required)\n2. Supported commands mapping:\n   - 'pausa' / 'stop' → pause timer\n   - 'riprendi' / 'vai' → resume timer\n   - 'avanti' / 'prossimo' → skip to next set/exercise\n   - 'indietro' → go back to previous\n   - 'ripeti' → repeat current set\n3. Request permissions:\n   - Microphone (NSMicrophoneUsageDescription)\n   - Speech recognition (NSSpeechRecognitionUsageDescription)\n4. Visual feedback: microphone icon indicating listening state.\n5. Voice commands toggle in settings (off by default).\n6. Fallback: all voice commands have corresponding physical buttons.\n7. Handle noisy gym environment: require keyword prefix or activation gesture.\n8. Stop recognition when workout ends or app backgrounds.",
+        "testStrategy": "Test each voice command triggers correct action. Test in noisy environment simulation. Test with permissions denied. Verify fallback buttons always work. Test recognition stops on workout end.",
+        "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Local Notifications for Background Timer",
+        "description": "Implement local notifications to alert users when rest timer completes while app is backgrounded.",
+        "status": "done",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "details": "1. Create NotificationService using UNUserNotificationCenter:\n   - Request notification permission at first workout start\n   - Schedule notification when entering REST_RUNNING state\n   - Cancel notification when returning to foreground\n2. Notification content:\n   - Title: 'Tempo di recupero terminato'\n   - Body: 'Prossimo: [next exercise/set name]'\n   - Sound: default\n3. Schedule with exact time interval matching remaining rest seconds.\n4. Handle app returning to foreground: sync timer with elapsed time.\n5. Cancel all pending notifications on workout completion or pause.\n6. Update notification if user manually advances during rest.\n7. Handle notification permission denied gracefully.",
+        "testStrategy": "Test notification fires at correct time when app backgrounded. Test notification cancels on foreground return. Test timer syncs correctly after background period.",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Settings Screen",
+        "description": "Build a settings view for app configuration including HealthKit toggle, voice commands toggle, timer defaults, and data management.",
+        "status": "done",
+        "priority": "medium",
+        "dependencies": [
+          14,
+          15
+        ],
+        "details": "1. Create SettingsView with sections:\n   - Workout Defaults: default rest time, weight step increment\n   - Integrations: HealthKit toggle, Voice commands toggle\n   - Data: Export CSV, Delete all data (with confirmation)\n   - About: version, credits\n2. Store settings in UserDefaults via @AppStorage.\n3. HealthKit section: show connection status, link to Health app.\n4. Voice commands section: show permission status.\n5. Default rest time: stepper 15-300 seconds.\n6. Weight step: picker for 1.0, 1.25, 2.0, 2.5, 5.0 kg.\n7. Delete all data: require double confirmation.\n8. Add Settings tab or gear icon in navigation.",
+        "testStrategy": "Test all settings persist across app restarts. Test delete all data removes everything. Verify toggles correctly enable/disable features.",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "CSV Import/Export",
+        "description": "Implement CSV export of workout history and import of workout templates for data portability.",
+        "status": "pending",
+        "priority": "low",
+        "dependencies": [
+          9,
+          17
+        ],
+        "details": "1. Export functionality:\n   - Export all sessions as CSV: date, template, exercise, set, weight, reps, duration\n   - Use ShareLink or UIActivityViewController\n   - File name: GymBro_export_[date].csv\n2. Import functionality:\n   - Import CSV to create workout templates\n   - Expected format: exercise name, sets, reps, rest\n   - Use fileImporter modifier\n   - Validate CSV structure before import\n3. Export templates as shareable format.\n4. Handle encoding (UTF-8 with BOM for Excel compatibility).\n5. Progress indicator for large exports.",
+        "testStrategy": "Test export generates valid CSV. Test import creates correct templates. Test with malformed CSV. Test large dataset export performance.",
+        "subtasks": []
+      },
+      {
+        "id": 19,
+        "title": "iCloud Backup (Optional)",
+        "description": "Implement optional iCloud backup for Core Data using NSPersistentCloudKitContainer for cross-device sync.",
+        "status": "pending",
+        "priority": "low",
+        "dependencies": [
+          2,
+          17
+        ],
+        "details": "1. Convert PersistenceController to support NSPersistentCloudKitContainer.\n2. Make iCloud sync opt-in via settings toggle.\n3. When disabled, use standard NSPersistentContainer.\n4. Configure CloudKit container and entitlements.\n5. Handle merge conflicts with last-write-wins strategy.\n6. Show sync status indicator in settings.\n7. Handle offline gracefully (works offline, syncs when connected).\n8. Test data migration from local to cloud container.",
+        "testStrategy": "Test with iCloud enabled and disabled. Test data syncs between two devices. Test offline usage still works. Test toggling sync on/off preserves data.",
+        "subtasks": []
+      },
+      {
+        "id": 20,
+        "title": "Accessibility & One-Handed UX Polish",
+        "description": "Final accessibility pass ensuring VoiceOver support, Dynamic Type, minimum touch targets, and one-handed usability throughout the app.",
+        "status": "done",
+        "priority": "medium",
+        "dependencies": [
+          11,
+          12
+        ],
+        "details": "1. VoiceOver audit:\n   - Add accessibilityLabel to all interactive elements\n   - Add accessibilityHint for non-obvious actions\n   - Ensure logical reading order\n   - Timer announces remaining time periodically\n2. Dynamic Type:\n   - All text uses relative sizing\n   - Test with largest accessibility size\n   - Ensure layouts don't break\n3. Touch targets:\n   - Audit all buttons: minimum 44x44pt\n   - Increase spacing between adjacent targets\n   - Test with 'sweaty fingers' scenario (larger hit areas)\n4. One-handed use:\n   - All primary CTAs in bottom third of screen\n   - No critical actions requiring top-of-screen reach\n   - Swipe gestures as alternatives to buttons\n5. Color contrast: verify WCAG AA compliance.\n6. Reduce motion support: honor system accessibility settings.",
+        "testStrategy": "Full VoiceOver walkthrough of every screen. Test with largest Dynamic Type. Measure all touch targets. Test one-handed use on largest iPhone. Run Accessibility Inspector audit.",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2026-02-20T11:43:33.768Z",
+      "updated": "2026-02-20T11:54:10.532Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

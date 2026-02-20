@@ -1,0 +1,23 @@
+# Task ID: 16
+# Title: Local Notifications for Background Timer
+# Status: pending
+# Dependencies: 3
+# Priority: medium
+# Description: Implement local notifications to alert users when rest timer completes while app is backgrounded.
+# Details:
+1. Create NotificationService using UNUserNotificationCenter:
+   - Request notification permission at first workout start
+   - Schedule notification when entering REST_RUNNING state
+   - Cancel notification when returning to foreground
+2. Notification content:
+   - Title: 'Tempo di recupero terminato'
+   - Body: 'Prossimo: [next exercise/set name]'
+   - Sound: default
+3. Schedule with exact time interval matching remaining rest seconds.
+4. Handle app returning to foreground: sync timer with elapsed time.
+5. Cancel all pending notifications on workout completion or pause.
+6. Update notification if user manually advances during rest.
+7. Handle notification permission denied gracefully.
+
+# Test Strategy:
+Test notification fires at correct time when app backgrounded. Test notification cancels on foreground return. Test timer syncs correctly after background period.

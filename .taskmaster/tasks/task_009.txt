@@ -1,0 +1,26 @@
+# Task ID: 9
+# Title: Workout Session History
+# Status: pending
+# Dependencies: 2, 7
+# Priority: high
+# Description: Build a history view showing all past workout sessions with details, duration, and completion status.
+# Details:
+1. Create HistoryView as a tab:
+   - List of past sessions sorted by date (newest first)
+   - Each row: template name, date, duration, completion badge
+   - Section headers by month
+2. Create HistoryDetailView:
+   - Session summary: template name, date, total duration
+   - Exercise breakdown: each exercise with all set records
+   - Display per-set: weight x reps
+   - Completion percentage
+3. Create HistoryViewModel:
+   - Fetch sessions from SessionRepository
+   - Support date range filtering
+   - Calculate statistics
+4. Swipe to delete sessions.
+5. Empty state for no history yet.
+6. Display streak (consecutive days with workouts).
+
+# Test Strategy:
+Test history loads saved sessions correctly. Verify detail view shows all set records. Test date filtering. Test deletion removes session and associated records.

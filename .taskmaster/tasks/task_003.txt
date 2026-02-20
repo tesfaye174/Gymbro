@@ -1,0 +1,28 @@
+# Task ID: 3
+# Title: Timer Engine with State Machine
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Build a precise timer engine using DispatchSourceTimer with a state machine managing workout flow: IDLE → EXERCISE_RUNNING → REST_RUNNING → NEXT_SET → NEXT_EXERCISE → COMPLETED.
+# Details:
+1. Create TimerEngine class as ObservableObject.
+2. Define WorkoutState enum: idle, exerciseRunning, restRunning, nextSet, nextExercise, completed.
+3. Implement DispatchSourceTimer for precise 1-second ticks:
+   - timer = DispatchSource.makeTimerSource()
+   - schedule(deadline: .now(), repeating: 1)
+   - Update on main queue
+4. Published properties: currentState, remainingSeconds, totalElapsedSeconds, currentExerciseIndex, currentSetIndex.
+5. Methods: start(), pause(), resume(), skip(), goBack(), reset().
+6. State transition logic:
+   - IDLE → start() → EXERCISE_RUNNING
+   - EXERCISE_RUNNING → timer expires → REST_RUNNING (haptic brief)
+   - REST_RUNNING → timer expires → NEXT_SET or NEXT_EXERCISE (haptic double)
+   - Last set of last exercise → COMPLETED
+7. Haptic feedback via UIImpactFeedbackGenerator:
+   - .light for exercise end
+   - .medium + .medium (double tap) for rest end
+8. Keep screen awake: UIApplication.shared.isIdleTimerDisabled = true during workout.
+9. Track total elapsed time independently of set/rest timers.
+
+# Test Strategy:
+Unit test state transitions. Verify timer counts down correctly. Test pause/resume doesn't lose time. Test skip advances to correct next state. Verify haptic triggers at correct state transitions.

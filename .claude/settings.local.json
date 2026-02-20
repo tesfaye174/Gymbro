@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__task-master-ai__initialize_project",
+      "mcp__task-master-ai__parse_prd",
+      "mcp__task-master-ai__models",
+      "Bash(ls -la \"c:\\\\Users\\\\tesfa\\\\Desktop\\\\GymBro\\\\.taskmaster\"\" 2>nul || echo \"Directory not found \")",
+      "mcp__task-master-ai__generate",
+      "Bash(npm install:*)",
+      "Bash(if not exist \"c:\\\\Users\\\\tesfa\\\\Desktop\\\\GymBro\\\\assets\" mkdir \"c:\\\\Users\\\\tesfa\\\\Desktop\\\\GymBro\\\\assets\")"
+    ]
+  }
+}

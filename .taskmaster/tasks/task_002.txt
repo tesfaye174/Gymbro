@@ -1,0 +1,24 @@
+# Task ID: 2
+# Title: Core Data Models & Repository Layer
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Implement Swift model structs, Core Data CRUD operations, and a repository pattern for clean data access across the app.
+# Details:
+1. Create Swift structs mirroring Core Data entities for use in ViewModels (WorkoutTemplateModel, ExerciseModel, WorkoutSessionModel, SetRecordModel).
+2. Implement WorkoutRepository with methods:
+   - createTemplate(name:exercises:) -> WorkoutTemplateModel
+   - fetchAllTemplates() -> [WorkoutTemplateModel]
+   - updateTemplate(id:name:exercises:)
+   - deleteTemplate(id:)
+3. Implement SessionRepository with methods:
+   - createSession(templateId:) -> WorkoutSessionModel
+   - completeSession(id:duration:)
+   - fetchAllSessions() -> [WorkoutSessionModel]
+   - fetchSessions(from:to:) -> [WorkoutSessionModel]
+   - addSetRecord(sessionId:exerciseName:weight:reps:fatigue:setIndex:)
+4. Add proper error handling with custom WorkoutError enum.
+5. Use @FetchRequest wrappers where appropriate in views.
+
+# Test Strategy:
+Write unit tests for CRUD operations. Test creating a template with exercises, fetching it back, updating, and deleting. Verify cascade delete removes exercises when template is deleted.

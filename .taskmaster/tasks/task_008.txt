@@ -1,0 +1,25 @@
+# Task ID: 8
+# Title: Auto-Advance Between Exercises & Sets
+# Status: pending
+# Dependencies: 3, 6
+# Priority: high
+# Description: Implement automatic progression through sets and exercises with smooth transitions and clear visual/haptic feedback.
+# Details:
+1. In TimerEngine, implement auto-advance logic:
+   - After EXERCISE_RUNNING completes → auto-transition to REST_RUNNING
+   - After REST_RUNNING completes → auto-transition to NEXT_SET or NEXT_EXERCISE
+   - Brief 3-second countdown overlay before advancing
+2. Visual transitions:
+   - Animated state change between exercise and rest
+   - Preview of next exercise during rest period
+   - Set counter updates smoothly
+3. Haptic pattern:
+   - Single vibration → exercise time done, rest starts
+   - Double vibration → rest done, next set/exercise starts
+4. Override: user can tap to advance early or delay.
+5. Handle last set of last exercise → transition to COMPLETED state.
+6. Sound option (optional, off by default): subtle chime on transitions.
+7. Ensure smooth animation between states (withAnimation).
+
+# Test Strategy:
+Test complete auto-advance flow through multi-exercise workout. Verify correct haptic patterns. Test early advance override. Test completing final exercise transitions to completed state.

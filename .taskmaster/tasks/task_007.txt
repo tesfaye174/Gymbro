@@ -1,0 +1,26 @@
+# Task ID: 7
+# Title: Set Logging & Weight/Reps Input
+# Status: pending
+# Dependencies: 2, 6
+# Priority: high
+# Description: Implement reliable per-set logging of weight, reps done, and optional fatigue rating with persistent storage.
+# Details:
+1. Enhance SetRecord saving in ActiveWorkoutViewModel:
+   - On each set completion, save: weight, repsDone, fatigue (optional 1-10), setIndex, exerciseName
+   - Associate with current WorkoutSession
+2. Weight input component:
+   - Large +/- buttons (44x44pt minimum touch target)
+   - Step: 2.5kg (configurable)
+   - Long press for fast increment
+   - Display in kg (future: lb toggle)
+3. Reps input component:
+   - +/- buttons
+   - Default to template reps value
+   - Highlight if different from target
+4. Optional fatigue slider (1-10) shown after completing each exercise (not each set).
+5. Pre-populate weight from last session's same exercise.
+6. Save immediately on completion (no batch save at end).
+7. Handle edge cases: 0 weight (bodyweight), partial sets.
+
+# Test Strategy:
+Verify set records persist to Core Data. Test weight pre-population from previous sessions. Test edge cases: bodyweight exercises, partial sets. Verify data integrity after app restart.

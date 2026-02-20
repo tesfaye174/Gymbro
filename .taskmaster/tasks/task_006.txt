@@ -1,0 +1,31 @@
+# Task ID: 6
+# Title: Active Workout Session Screen
+# Status: pending
+# Dependencies: 3, 5
+# Priority: high
+# Description: Build the main workout execution screen showing current exercise, timer, weight controls, and set progress with zero-scroll layout.
+# Details:
+1. Create ActiveWorkoutView with zero-scroll layout:
+   - Exercise name (top, large font)
+   - Set progress: 'Serie [current]/[total]' 
+   - Timer display: large countdown (72pt font, monospaced)
+   - Current weight display with +/- buttons (step: 2.5kg)
+   - Reps done counter with +/- buttons
+   - Auto-advance indicator
+2. Create ActiveWorkoutViewModel:
+   - Initialize with template exercises
+   - Connect to TimerEngine
+   - Track per-set: weight, reps done
+   - Save SetRecord on set completion
+   - Create WorkoutSession on start, complete on finish
+3. Bottom controls: Pause, Skip, End Workout.
+4. Auto-advance: when rest timer ends, automatically move to next set/exercise.
+5. Display state-appropriate content:
+   - EXERCISE_RUNNING: show exercise timer + weight/reps input
+   - REST_RUNNING: show rest countdown + 'Prossimo: [next exercise/set]'
+   - COMPLETED: show summary and save
+6. Disable idle timer during workout.
+7. Weight defaults to last used weight for same exercise.
+
+# Test Strategy:
+Test full workout flow from start to completion. Verify set records are saved correctly. Test weight/reps adjustment. Verify auto-advance works between sets and exercises. Test pause and resume.

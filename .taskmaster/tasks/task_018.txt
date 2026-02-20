@@ -1,0 +1,22 @@
+# Task ID: 18
+# Title: CSV Import/Export
+# Status: pending
+# Dependencies: 9, 17
+# Priority: low
+# Description: Implement CSV export of workout history and import of workout templates for data portability.
+# Details:
+1. Export functionality:
+   - Export all sessions as CSV: date, template, exercise, set, weight, reps, duration
+   - Use ShareLink or UIActivityViewController
+   - File name: GymBro_export_[date].csv
+2. Import functionality:
+   - Import CSV to create workout templates
+   - Expected format: exercise name, sets, reps, rest
+   - Use fileImporter modifier
+   - Validate CSV structure before import
+3. Export templates as shareable format.
+4. Handle encoding (UTF-8 with BOM for Excel compatibility).
+5. Progress indicator for large exports.
+
+# Test Strategy:
+Test export generates valid CSV. Test import creates correct templates. Test with malformed CSV. Test large dataset export performance.
